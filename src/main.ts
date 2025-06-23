@@ -4,16 +4,21 @@ type Corrections = {
 };
 
 export function checkSpelling(text: string): Array<Corrections>[] {
-  const words: Array<string> = text.split(/\s+/);
-  const dictionary: Array<string> = new Array();
-  words.map((w, i) => {
+  let words: Array<string> = text.split(/\s+/);
+  const dictionary: Array<string> = ["bat", "link", "full", "think"];
+  console.log(words);
+  const result = words.map((w, i) => {
     if (dictionary.includes(w)) return;
     // Check each word for how close it maches any word
     // in dictionary
     // if it's not matching any fully
     // then give 3 closest matches
+    const matches = dictionary.map((dictw) => {
+      return { distance: getLevenshteinDistance(w, dictw), word: dictw };
+    });
+    return matches.sort((a, b) => a.distance - b.distance);
   });
-  return [];
+  return result;
 }
 
 function getLevenshteinDistance(firstWord: string, secondWord: string): number {
@@ -49,3 +54,4 @@ console.log(getLevenshteinDistance("cat", "bat") === 1);
 console.log(getLevenshteinDistance("zelda", "link") === 5);
 console.log(getLevenshteinDistance("empty", "full") === 5);
 console.log(getLevenshteinDistance("risk", "think") === 3);
+console.log(checkSpelling("cat zelda empty risk"));
