@@ -19,25 +19,19 @@ export function checkSpelling(text: string): Array<Corrections>[] {
 function getLevenshteinDistance(firstWord: string, secondWord: string): number {
   const m = firstWord.length;
   const n = secondWord.length;
-  const dp: Array<Array<number>> = [];
+  let dp: Array<Array<number>> = [];
   dp.length = m + 1;
   for (let i = 0; i < m + 1; i++) {
     dp[i] = new Array(n + 1).fill(0);
   }
-  dp.map((arr, i) => {
+  dp = dp.map((arr, i) => {
     arr[0] = i;
     return arr;
   });
-  // dp[0].map((elem, i) => {
-  //   elem = i;
-  //   return elem;
-  // });
-  // for (let i = 0; i < m + 1; i++) {
-  //   dp[i][0] = i;
-  // }
-  for (let i = 0; i < n + 1; i++) {
-    dp[0][i] = i;
-  }
+  dp[0] = dp[0].map((elem, i) => {
+    elem = i;
+    return elem;
+  });
   for (let i = 1; i < m + 1; i++) {
     for (let j = 1; j < n + 1; j++) {
       if (firstWord[i - 1] === secondWord[j - 1]) {
