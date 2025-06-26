@@ -3,20 +3,43 @@ type Corrections = {
   proposed_phrases: Array<string>;
 };
 
-export function checkSpelling(text: string): Array<Corrections>[] {
-  let words: Array<string> = text.split(/\s+/);
-  const dictionary: Array<string> = ["bat", "link", "full", "think"];
-  console.log(words);
-  const result = words.map((w, i) => {
-    if (dictionary.includes(w)) return;
-    // Check each word for how close it maches any word
-    // in dictionary
-    // if it's not matching any fully
-    // then give 3 closest matches
-    const matches = dictionary.map((dictw) => {
+/*
+ * Number of closest words that will be returned for each word in given text
+ * Default set to 3
+ */
+export let SUGGESTION_NUMBER: number = 3;
+
+/*
+ * Array of strings containing dictionary words, that the algorithm will calculate distance to
+ * Default is empty
+ */
+export let WORD_DICTIONARY_ARRAY: Array<string> = [];
+
+/*
+ * Given input text as string, splits text on whitespace using regex, then calculates Levenshtein distance per each word in input and dictionary, then returns SUGGESTION_NUUMBER closest matching elements per input word
+ *
+ */
+export function checkSpelling(text: string): Array<Array<string>> {
+  if (WORD_DICTIONARY_ARRAY.length === 0) {
+    throw new Error("Looks like you forgot to set WORD_DICTIONARY_ARRAY");
+  }
+
+  let words = text.split(/\s+/);
+  if (words.length === 0) {
+    throw new Error(`Couldn't split input text on whitespace ${words}`);
+  }
+
+  const result = words.map((w) => {
+    if (WORD_DICTIONARY_ARRAY.includes(w)) return [w];
+
+    const matches = WORD_DICTIONARY_ARRAY.map((dictw) => {
       return { distance: getLevenshteinDistance(w, dictw), word: dictw };
     });
-    return matches.sort((a, b) => a.distance - b.distance);
+
+    return matches
+      .sort((a, b) => a.distance - b.distance)
+      .slice(0, SUGGESTION_NUMBER)
+      .map((w) => w.word);
   });
   return result;
 }
@@ -50,6 +73,7 @@ function getLevenshteinDistance(firstWord: string, secondWord: string): number {
   return dp[m][n];
 }
 
+WORD_DICTIONARY_ARRAY = ["bat", "link", "full", "think"];
 console.log(getLevenshteinDistance("cat", "bat") === 1);
 console.log(getLevenshteinDistance("zelda", "link") === 5);
 console.log(getLevenshteinDistance("empty", "full") === 5);
